@@ -1,0 +1,15 @@
+.erreur {
+    color: red;
+}
+
+body{
+    background-color: rgb(37, 42, 46);
+    color: white;
+    font-size: larger;
+}
+
+.separate{
+    background-color: white;
+    color: white;
+    font-size: 2px;
+}
