@@ -8,7 +8,7 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-install pdo_sqlite
 
 # Copier les fichiers de l'application dans le répertoire de l'hôte Apache
-COPY . /var/www/html/
+COPY ./Code /var/www/html/
 
 # Donner les permissions appropriées au répertoire et aux fichiers
 RUN chown -R www-data:www-data /var/www/html \
