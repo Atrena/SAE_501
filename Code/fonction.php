@@ -1,5 +1,28 @@
 <?php
 
+try {
+    // Connexion à la base "bdd"
+    $pdo_bdd = new PDO(
+        'mysql:host=172.17.0.2;port=3306;dbname=bdd',
+        'saeuser',
+        'lannion'
+    );
+    $pdo_bdd->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+    // Connexion à la base "compte"
+    $pdo_compte = new PDO(
+        'mysql:host=172.17.0.2;port=3306;dbname=compte',
+        'saeuser',
+        'lannion'
+    );
+    $pdo_compte->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+} catch (PDOException $e) {
+    die("Erreur de connexion : " . $e->getMessage());
+}
+?>
+
+
 //****************************Redirection****************************
 
 function redirect($url, $tps)
