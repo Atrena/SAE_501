@@ -1,27 +1,31 @@
 <?php
 
-try {
-    // Connexion à la base "bdd"
-    $pdo_bdd = new PDO(
-        'mysql:host=172.17.0.2;port=3306;dbname=bdd',
+$pdo_db = new PDO(
+        'mysql:host=mariadb_sae;port=3306;dbname=saedb',
         'saeuser',
         'lannion'
     );
-    $pdo_bdd->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-    // Connexion à la base "compte"
-    $pdo_compte = new PDO(
-        'mysql:host=172.17.0.2;port=3306;dbname=compte',
-        'saeuser',
-        'lannion'
-    );
-    $pdo_compte->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+// try {
+//     // Connexion à la base "bdd"
+//     $pdo_bdd = new PDO(
+//         'mysql:host=mariadb_sae;port=3306;dbname=saedb',
+//         'saeuser',
+//         'lannion'
+//     );
+//     $pdo_bdd->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-} catch (PDOException $e) {
-    die("Erreur de connexion : " . $e->getMessage());
-}
-?>
+//     // Connexion à la base "compte"
+//     $pdo_compte = new PDO(
+//         'mysql:host=mariadb_sae;port=3306;dbname=saedb',
+//         'saeuser',
+//         'lannion'
+//     );
+//     $pdo_compte->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
+// } catch (PDOException $e) {
+//     die("Erreur de connexion : " . $e->getMessage());
+// }
 
 //****************************Redirection****************************
 
@@ -46,7 +50,10 @@ function redirect($url, $tps)
 function authentification($mail, $pass)
 {
 	$retour = false;
-	$madb = new PDO('sqlite:bdd/comptes.sqlite');
+
+	global $pdo_db;
+	$madb = $pdo_db;
+	//$madb = new PDO('sqlite:bdd/comptes.sqlite');
 	$mail = $madb->quote($mail);
 	$pass = $madb->quote($pass);
 	$requete = "SELECT EMAIL,PASS,STATUT FROM utilisateurs WHERE EMAIL = " . $mail . " AND PASS = " . $pass;
@@ -62,9 +69,11 @@ function authentification($mail, $pass)
 //****************************Suppression****************************
 
 function SuppressionNotes($note, $matiere, $coef){
+	global $pdo_db;
+	$madb = $pdo_db;
 	$retour=0;
 		try{
-			$madb = new PDO('sqlite:bdd/bdd.db');
+			//$madb = new PDO('sqlite:bdd/bdd.db');
 			/*
 			$rq_notes = "SELECT NoNote FROM Notes WHERE NomNote='$note'";
 			$rq_matieres = "SELECT NoMat FROM Matieres WHERE NomMat='$matiere'";
@@ -87,9 +96,11 @@ function SuppressionNotes($note, $matiere, $coef){
 
 function ajouterNote($noMat, $noNote, $coefficient)
 {
-	$retour = 0;
+	$retour = 0;	
+	global $pdo_db;
+	$madb = $pdo_db;
 	try {
-		$madb = new PDO('sqlite:bdd/bdd.db');
+		//$madb = new PDO('sqlite:bdd/bdd.db');
 		$rq = "INSERT INTO NotesMatieres VALUES ($noMat, $noNote, $coefficient)";
 		$resultat = $madb->query($rq);
 	} catch (Exception $e) {
@@ -106,8 +117,10 @@ function ajouterNote($noMat, $noNote, $coefficient)
 function ListeNote()
 {
 	$retour = false;
+	global $pdo_db;
+	$madb = $pdo_db;
 	try {
-		$madb = new PDO('sqlite:bdd/bdd.db');
+		//$madb = new PDO('sqlite:bdd/bdd.db');
 		$rq = "SELECT Notes.NomNote, Matieres.NomMat, Matieres.Prof, NotesMatieres.Coefficient FROM NotesMatieres INNER JOIN Notes ON Notes.NoNote = NotesMatieres.noNote INNER JOIN Matieres ON Matieres.NoMat = NotesMatieres.noMat;";
 		$resultat = $madb->query($rq);
 		$tableau_assoc = $resultat->fetchAll(PDO::FETCH_ASSOC);
@@ -144,9 +157,11 @@ function afficheTableau($tab)
 
 function modificationNotes($note, $matiere, $coef){
 	$retour=0;
+	global $pdo_db;
+	$madb = $pdo_db;
 		try{
-			$file = dirname(__FILE__);
-			$madb = new PDO('sqlite:'.$file.DIRECTORY_SEPARATOR.'bdd'.DIRECTORY_SEPARATOR.'bdd.db'); 
+			//$file = dirname(__FILE__);
+			//$madb = new PDO('sqlite:'.$file.DIRECTORY_SEPARATOR.'bdd'.DIRECTORY_SEPARATOR.'bdd.db'); 
 			$rq_notes = "SELECT NoNote FROM Notes WHERE NomNote='$note'";
 			$rq_matieres = "SELECT NoMat FROM Matieres WHERE NomMat='$matiere'";
 			$resultat_noNote = $madb -> query($rq_notes);
@@ -171,9 +186,11 @@ function modificationNotes($note, $matiere, $coef){
 function FiltreParNote($note)
 {
 	$retour = false;
+	global $pdo_db;
+	$madb = $pdo_db;
 	try {
-		$file = dirname(__FILE__);
-		$madb = new PDO('sqlite:'.$file.DIRECTORY_SEPARATOR.'bdd'.DIRECTORY_SEPARATOR.'bdd.db'); 
+		//$file = dirname(__FILE__);
+		//$madb = new PDO('sqlite:'.$file.DIRECTORY_SEPARATOR.'bdd'.DIRECTORY_SEPARATOR.'bdd.db'); 
 		$rq = "SELECT Notes.NomNote, Matieres.NomMat, Matieres.Prof, NotesMatieres.Coefficient FROM NotesMatieres INNER JOIN Notes ON Notes.NoNote = NotesMatieres.noNote INNER JOIN Matieres ON Matieres.NoMat = NotesMatieres.noMat WHERE Notes.NoNote = $note;";
 		$resultat = $madb->query($rq);
 		$tableau_assoc = $resultat->fetchAll(PDO::FETCH_ASSOC);
@@ -192,9 +209,11 @@ function FiltreParNote($note)
 function FiltreParMatiere($matiere)
 {
 	$retour = false;
+	global $pdo_db;
+	$madb = $pdo_db;
 	try {
-		$file = dirname(__FILE__);
-		$madb = new PDO('sqlite:'.$file.DIRECTORY_SEPARATOR.'bdd'.DIRECTORY_SEPARATOR.'bdd.db'); 
+		//$file = dirname(__FILE__);
+		//$madb = new PDO('sqlite:'.$file.DIRECTORY_SEPARATOR.'bdd'.DIRECTORY_SEPARATOR.'bdd.db'); 
 		$rq = "SELECT Notes.NomNote, Matieres.NomMat, Matieres.Prof, NotesMatieres.Coefficient FROM NotesMatieres INNER JOIN Notes ON Notes.NoNote = NotesMatieres.noNote INNER JOIN Matieres ON Matieres.NoMat = NotesMatieres.noMat WHERE Matieres.NoMat = $matiere;";
 		$resultat = $madb->query($rq);
 		$tableau_assoc = $resultat->fetchAll(PDO::FETCH_ASSOC);
@@ -207,3 +226,4 @@ function FiltreParMatiere($matiere)
 	}
 	return $retour;
 }
+?>

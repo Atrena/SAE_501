@@ -2,8 +2,7 @@
 FROM php:8.2-apache
 
 # Installer les dépendances nécessaires
-RUN apt-get update && apt-get install -y \
-    && docker-php-ext-install pdo_sqlite
+RUN docker-php-ext-install pdo_mysql
 
 # Copier les fichiers de l'application dans le répertoire de l'hôte Apache
 COPY ./Code /var/www/html/
