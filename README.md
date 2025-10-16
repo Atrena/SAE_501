@@ -1,7 +1,8 @@
 # SAE_501
 
-
 ## VISA 1
+
+--- 
 
 Telecharger ce fichier : https://github.com/Atrena/SAE_501/releases/tag/v1.0
 
@@ -21,9 +22,9 @@ Ensuite, il faut exécuter cette commande :
 docker run -d -p 8080:80 --name SAE501 sae_501_v2
 ```
 
---- 
-
 ## VISA 2
+
+--- 
 
 Telecharger ce fichier : https://github.com/Atrena/SAE_501/releases/tag/v2.0
 
