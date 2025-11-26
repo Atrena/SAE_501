@@ -11,6 +11,16 @@ mydb = mysql.connector.connect(
     database="saedb"
 )
 
+class Matieres(BaseModel):
+    noMat:int
+    nomMat:str
+    Prof:str
+    
+class NotesMatieres(BaseModel):
+    noNote:int
+    noMat:int
+    Coefficient:float
+    
 class Notes(BaseModel):
     noNote:int
     nomNote:str
@@ -18,11 +28,38 @@ class Notes(BaseModel):
     
 app = FastAPI()
 
-@app.get("/Notes/{NoNote}")
-def get(NoNote): 
-    rq = f"SELECT * FROM Notes WHERE noNote = {NoNote}"
+@app.get("/Notes/{noNote}")
+def get(noNote:int): 
+    rq = f"SELECT Notes.nomNote, Matieres.nomMat, Matieres.Prof, NotesMatieres.Coefficient FROM NotesMatieres INNER JOIN Notes ON Notes.noNote = NotesMatieres.noNote INNER JOIN Matieres ON Matieres.noMat = NotesMatieres.noMat WHERE Notes.noNote = {noNote};"
     cursor = mydb.cursor()
     cursor.execute(rq)
     result = cursor.fetchall()
+    tab:tuple = []
     for e in result :
-        return e
+        tab.append(e)
+    return tab
+    
+@app.get("/Matieres/{noMat}")
+def get(noMat:int): 
+    rq = f"SELECT Notes.NomNote, Matieres.NomMat, Matieres.Prof, NotesMatieres.Coefficient FROM NotesMatieres INNER JOIN Notes ON Notes.NoNote = NotesMatieres.noNote INNER JOIN Matieres ON Matieres.NoMat = NotesMatieres.noMat WHERE Matieres.NoMat = {noMat};"
+    cursor = mydb.cursor()
+    cursor.execute(rq)
+    result = cursor.fetchall()
+    tab:tuple = []
+    for e in result :
+        tab.append(e)
+    return tab
+    
+@app.post("/NoteMatieres/")
+def post(noteMatieres: NotesMatieres): 
+    rq = f"INSERT INTO NotesMatieres VALUES ({noteMatieres.noMat}, {noteMatieres.noNote}, {noteMatieres.Coefficient})"
+    cursor = mydb.cursor()
+    cursor.execute(rq)
+    return "Insertion reussie"
+
+@app.put("/NoteMatieres/")
+def put(noteMatieres: NotesMatieres): 
+    rq = f"UPDATE NotesMatieres SET noNote={noteMatieres.noNote}, noMat={noteMatieres.noMat}, Coefficient={noteMatieres.Coefficient} WHERE noNote='{noteMatieres.noNote}' AND noMat='{noteMatieres.noMat}' AND Coefficient='{noteMatieres.Coefficient}'"
+    cursor = mydb.cursor()
+    cursor.execute(rq)
+    return "Insertion reussie"
