@@ -27,6 +27,42 @@ $pdo_db = new PDO(
 //     die("Erreur de connexion : " . $e->getMessage());
 // }
 
+// Configuration de l'API
+define('API_BASE_URL', 'http://127.0.0.1:8000');
+
+function callAPI($method, $endpoint, $data = false) {
+    $url = API_BASE_URL . $endpoint;
+    $options = array(
+        'http' => array(
+            'header'  => "Content-type: application/json\r\n",
+            'method'  => $method,
+            'ignore_errors' => true
+        )
+    );
+    if ($data) {
+        $options['http']['content'] = json_encode($data);
+    }
+    $context  = stream_context_create($options);
+    $result = @file_get_contents($url, false, $context);
+
+    if ($result === FALSE) {
+        return false;
+    }
+
+    // Vérification du code HTTP
+    if (isset($http_response_header)) {
+        foreach ($http_response_header as $header) {
+            if (preg_match('#^HTTP/\d\.\d (\d+)#', $header, $matches)) {
+                $status_code = intval($matches[1]);
+                if ($status_code >= 200 && $status_code < 300) {
+                    return $result;
+                }
+            }
+        }
+    }
+    return false;
+}
+
 //****************************Redirection****************************
 
 function redirect($url, $tps)
@@ -69,47 +105,34 @@ function authentification($mail, $pass)
 //****************************Suppression****************************
 
 function SuppressionNotes($note, $matiere, $coef){
-	global $pdo_db;
-	$madb = $pdo_db;
-	$retour=0;
-		try{
-			//$madb = new PDO('sqlite:bdd/bdd.db');
-			/*
-			$rq_notes = "SELECT NoNote FROM Notes WHERE NomNote='$note'";
-			$rq_matieres = "SELECT NoMat FROM Matieres WHERE NomMat='$matiere'";
-			$resultat_noNote = $madb -> query($rq_notes);
-			$noNote = $resultat_noNote->fetch(PDO::FETCH_ASSOC)['NoNote'];
-			$resultat_noMat = $madb -> query($rq_matieres);
-			$noMat = $resultat_noMat->fetch(PDO::FETCH_ASSOC)['NoMat'];
-			*/
-			$rq = "DELETE FROM NotesMatieres WHERE noNote='$note' AND noMat='$matiere' AND Coefficient='$coef'";
-			$resultat = $madb->exec($rq);
-		}
-	catch (Exception $e) {	 echo "Erreur " . $e->getMessage(); }
-			if (!empty($resultat)) {
-				$retour = 1;
-		}
-		return $retour;
+    // $note est l'ID de la note (noNote)
+    // $matiere est l'ID de la matière (noMat)
+    // L'API utilise DELETE /NoteMatieres/{noMat}/{noNote}
+    $endpoint = "/NoteMatieres/" . $matiere . "/" . $note;
+    $result = callAPI('DELETE', $endpoint);
+
+    if ($result !== false) {
+        return 1;
+    }
+    return 0;
 }
 
 //****************************Ajouter****************************
 
 function ajouterNote($noMat, $noNote, $coefficient)
 {
-	$retour = 0;	
-	global $pdo_db;
-	$madb = $pdo_db;
-	try {
-		//$madb = new PDO('sqlite:bdd/bdd.db');
-		$rq = "INSERT INTO NotesMatieres VALUES ($noMat, $noNote, $coefficient)";
-		$resultat = $madb->query($rq);
-	} catch (Exception $e) {
-		//echo "<p class='erreur'>Erreur de la base de donnée : $e</p>";
-	}
-	if (!empty($resultat)) {
-		$retour = 1;
-	}
-	return $retour;
+    $data = array(
+        "noMat" => intval($noMat),
+        "noNote" => intval($noNote),
+        "Coefficient" => intval($coefficient)
+    );
+
+    $result = callAPI('POST', '/NoteMatieres/', $data);
+
+    if ($result !== false) {
+        return 1;
+    }
+    return 0;
 }
 
 //****************************Liste****************************
@@ -159,26 +182,35 @@ function modificationNotes($note, $matiere, $coef){
 	$retour=0;
 	global $pdo_db;
 	$madb = $pdo_db;
-		try{
-			//$file = dirname(__FILE__);
-			//$madb = new PDO('sqlite:'.$file.DIRECTORY_SEPARATOR.'bdd'.DIRECTORY_SEPARATOR.'bdd.db'); 
-			$rq_notes = "SELECT NoNote FROM Notes WHERE NomNote='$note'";
-			$rq_matieres = "SELECT NoMat FROM Matieres WHERE NomMat='$matiere'";
-			$resultat_noNote = $madb -> query($rq_notes);
-			$noNote = $resultat_noNote->fetch(PDO::FETCH_ASSOC)['NoNote'];
-			$resultat_noMat = $madb -> query($rq_matieres);
-			$noMat = $resultat_noMat->fetch(PDO::FETCH_ASSOC)['NoMat'];
-			$old_noNote = $_POST['old_noNote'];
-			$old_noMat = $_POST['old_noMat'];
-			$old_coef = $_POST['old_coef'];
-			$rq = "UPDATE NotesMatieres SET noNote=$noNote, noMat=$noMat, Coefficient=$coef WHERE noNote='$old_noNote' AND noMat='$old_noMat' AND Coefficient='$old_coef' ";
-			$resultat = $madb->exec($rq);
+	try{
+		// Récupération des IDs à partir des noms
+		$rq_notes = "SELECT NoNote FROM Notes WHERE NomNote='$note'";
+		$rq_matieres = "SELECT NoMat FROM Matieres WHERE NomMat='$matiere'";
+		$resultat_noNote = $madb -> query($rq_notes);
+		$noNote = $resultat_noNote->fetch(PDO::FETCH_ASSOC)['NoNote'];
+		$resultat_noMat = $madb -> query($rq_matieres);
+		$noMat = $resultat_noMat->fetch(PDO::FETCH_ASSOC)['NoMat'];
+
+		$old_noNote = $_POST['old_noNote'];
+		$old_noMat = $_POST['old_noMat'];
+		// $old_coef = $_POST['old_coef']; // Pas utilisé par l'API pour l'identification
+
+		// Appel API
+		$endpoint = "/NoteMatieres/" . $old_noMat . "/" . $old_noNote;
+		$data = array(
+			"noMat" => intval($noMat),
+			"noNote" => intval($noNote),
+			"Coefficient" => intval($coef)
+		);
+
+		$result = callAPI('PUT', $endpoint, $data);
+
+		if ($result !== false) {
+			$retour = 1;
 		}
-		catch (Exception $e) {		echo "Erreur " . $e->getMessage();		}
-			if (!empty($resultat)) {
-				$retour = 1;
-		}
-		return $retour;
+	}
+	catch (Exception $e) { echo "Erreur " . $e->getMessage(); }
+	return $retour;
 }
 
 //****************************Filtrage****************************
