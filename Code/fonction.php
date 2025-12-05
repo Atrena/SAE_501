@@ -9,7 +9,7 @@ $pdo_db = new PDO(
 // Configuration de l'API
 // Si vous utilisez Docker, mettez le nom du service (ex: http://api-sae:8000)
 // Si vous êtes en local sans conteneur pour l'API, mettez http://127.0.0.1:8000
-define('API_BASE_URL', 'http://host.docker.internal:8000');
+define('API_BASE_URL', 'http://sae_api:8000');
 
 // Fonction améliorée pour voir les erreurs
 function callAPI($method, $endpoint, $data = false) {

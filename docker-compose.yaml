@@ -1,0 +1,63 @@
+version: '3.8'
+
+services:
+  # 1. Base de données MariaDB
+  mariadb_sae:
+    build:
+      context: .
+      dockerfile: dockerfile_mariadb
+    container_name: mariadb_sae
+    environment:
+      - MARIADB_ROOT_PASSWORD=root
+      - MARIADB_DATABASE=saedb
+      - MARIADB_USER=saeuser
+      - MARIADB_PASSWORD=lannion
+    networks:
+      - network_sae
+    volumes:
+      - db_data:/var/lib/mysql
+    # Pas besoin d'exposer le port 3306 à l'extérieur si seul le PHP et l'API s'en servent,
+    # mais utile si vous voulez vous connecter avec un client SQL depuis votre PC.
+    ports:
+      - "3306:3306"
+
+  # 2. Serveur Web Apache + PHP
+  sae_apache:
+    build:
+      context: .
+      dockerfile: dockerfile_apache
+    container_name: SAE501
+    ports:
+      - "8080:80"
+    networks:
+      - network_sae
+    depends_on:
+      - mariadb_sae
+      - sae_api
+
+  # 3. API Python (FastAPI/Flask)
+  sae_api:
+    build:
+      context: .
+      dockerfile: dockerfile_api
+    container_name: sae_api
+    restart: on-failure
+    ports:
+      - "8000:8000" # Accessible depuis votre machine sur localhost:8000
+    networks:
+      - network_sae
+    depends_on:
+      - mariadb_sae
+    environment:
+      # L'API utilisera ce nom d'hôte pour parler à la base
+      - DB_HOST=mariadb_sae
+      - DB_NAME=saedb
+      - DB_USER=saeuser
+      - DB_PASSWORD=lannion
+
+networks:
+  network_sae:
+    driver: bridge
+
+volumes:
+  db_data:

@@ -4,7 +4,7 @@ import mysql.connector
 
 # Configuration de la connexion à la Base de Données
 mydb = mysql.connector.connect(
-    host="localhost",
+    host="mariadb_sae",
     user="saeuser",
     password="lannion",
     port=3306,
