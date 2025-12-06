@@ -62,3 +62,20 @@ Ensuite on lance le conteneur mariadb dans le reseaux network_sae
 docker run -dp 3306:3306 --network network_sae -h mariadb_sae sae_mariadb
 ```
 
+---
+
+## VISA 3
+
+Telecharger ce fichier : https://github.com/Atrena/SAE_501/releases/tag/v3.0
+
+Docker et Docker Compose sont nécessaires pour faire fonctionner ce projet.
+
+Pour utiliser ce projet, il suffit de le télécharger et de se mettre à la racine de celui-ci.
+
+Cette version introduit une architecture microservices orchestrée. Pour lancer l'ensemble des services (Apache, MariaDB, API Python), exécutez simplement cette commande :
+
+```bash
+docker compose up -d --build
+```
+
+L'application web sera accessible à l'adresse suivante : http://localhost:8080
