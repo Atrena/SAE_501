@@ -49,7 +49,9 @@ function FormulaireAjoutNotes()
 {
 	echo "<br/>";
 	try {
-		$madb = new PDO('sqlite:bdd/bdd.db');
+        // Modification pour utiliser la connexion MySQL globale
+        global $pdo_db;
+        $madb = $pdo_db;
 
 		// Requêtes SQL pour récupérer les matières et les types de notes
 		$rq_matiere = "SELECT NoMat, NomMat FROM Matieres";
@@ -100,8 +102,10 @@ function FormulaireAjoutNotes()
 function FormulaireChoixNotes($choix)
 {
 	try {
-		$file = dirname(__FILE__);
-		$madb = new PDO('sqlite:' . $file . DIRECTORY_SEPARATOR . 'bdd' . DIRECTORY_SEPARATOR . 'bdd.db');
+        // Modification pour utiliser la connexion MySQL globale
+        global $pdo_db;
+        $madb = $pdo_db;
+
 		$rq = "SELECT Notes.NomNote, Matieres.NomMat, Matieres.Prof, NotesMatieres.Coefficient FROM NotesMatieres INNER JOIN Notes ON Notes.NoNote = NotesMatieres.noNote INNER JOIN Matieres ON Matieres.NoMat = NotesMatieres.noMat;";
 		$resultat = $madb->query($rq);
 		$tableau_assoc = $resultat->fetchAll(PDO::FETCH_ASSOC);
@@ -148,7 +152,9 @@ function FormulaireSuppressionNotes()
 {
 	echo "<br/>";
 	try {
-		$madb = new PDO('sqlite:bdd/bdd.db');
+        // Modification pour utiliser la connexion MySQL globale
+        global $pdo_db;
+        $madb = $pdo_db;
 
 		// Requêtes SQL pour récupérer les matières et les types de notes
 		$rq_matiere = "SELECT NoMat, NomMat FROM Matieres";
@@ -201,7 +207,10 @@ function FormulaireSuppressionNotes()
 function FormulaireModificationNotes($note, $matiere, $coef)
 {
 	try {
-		$madb = new PDO('sqlite:bdd/bdd.db');
+        // Modification pour utiliser la connexion MySQL globale
+        global $pdo_db;
+        $madb = $pdo_db;
+
 		$rq = "SELECT Notes.NomNote, Matieres.NomMat, Matieres.Prof, NotesMatieres.Coefficient FROM NotesMatieres INNER JOIN Notes ON Notes.NoNote = NotesMatieres.noNote INNER JOIN Matieres ON Matieres.NoMat = NotesMatieres.noMat WHERE Notes.NomNote = '$note' AND Matieres.NomMat = '$matiere' AND NotesMatieres.Coefficient = '$coef';";
 		$rq_notes = "SELECT * FROM Notes;";
 		$rq_matieres = "SELECT * FROM Matieres;";
@@ -279,7 +288,9 @@ function FormulaireFiltreMatiere()
 {
 	echo "<br/>";
 	try {
-		$madb = new PDO('sqlite:bdd/bdd.db');
+        // Modification pour utiliser la connexion MySQL globale
+        global $pdo_db;
+        $madb = $pdo_db;
 
 		// Requêtes SQL pour récupérer les matières et les types de notes
 		$rq_matiere = "SELECT NoMat, NomMat FROM Matieres";
@@ -319,7 +330,9 @@ function FormulaireFiltreNote()
 {
 	echo "<br/>";
 	try {
-		$madb = new PDO('sqlite:bdd/bdd.db');
+        // Modification pour utiliser la connexion MySQL globale
+        global $pdo_db;
+        $madb = $pdo_db;
 
 		// Requêtes SQL pour récupérer les matières et les types de notes
 		$rq_matiere = "SELECT NoMat, NomMat FROM Matieres";

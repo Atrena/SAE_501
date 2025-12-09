@@ -2,7 +2,12 @@
 FROM php:8.2-apache
 
 # Installer les dépendances nécessaires
-RUN docker-php-ext-install pdo_mysql
+RUN apt-get update && apt-get install -y \
+    libpng-dev \
+    zlib1g-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN docker-php-ext-install pdo_mysql gd
 
 # Copier les fichiers de l'application dans le répertoire de l'hôte Apache
 COPY ./Code /var/www/html/
