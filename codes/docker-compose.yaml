@@ -4,7 +4,7 @@ services:
   # 1. Base de données MariaDB
   mariadb_sae:
     build:
-      context: .
+      context: ./bdd
       dockerfile: dockerfile_mariadb
     container_name: mariadb_sae
     environment:
@@ -24,7 +24,7 @@ services:
   # 2. Serveur Web Apache + PHP
   sae_apache:
     build:
-      context: .
+      context: ./web
       dockerfile: dockerfile_apache
     container_name: SAE501
     ports:
@@ -38,7 +38,7 @@ services:
   # 3. API Python (FastAPI/Flask)
   sae_api:
     build:
-      context: .
+      context: ./api
       dockerfile: dockerfile_api
     container_name: sae_api
     restart: on-failure
