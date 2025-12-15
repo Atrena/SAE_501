@@ -70,7 +70,7 @@ Telecharger ce fichier : https://github.com/Atrena/SAE_501/releases/tag/v3.0
 
 Docker et Docker Compose sont nécessaires pour faire fonctionner ce projet.
 
-Pour utiliser ce projet, il suffit de le télécharger et de se mettre à la racine de celui-ci.
+Pour utiliser ce projet, il suffit de le télécharger et de se mettre dans "codes".
 
 Cette version introduit une architecture microservices orchestrée. Pour lancer l'ensemble des services (Apache, MariaDB, API Python), exécutez simplement cette commande :
 
