@@ -203,23 +203,30 @@ function modificationNotes($note, $matiere, $coef){
 
 function FiltreParNote($note)
 {
-    $endpoint = "/Notes/" . $note; // Assurez-vous que cette route existe dans main.py
-    // Sinon utiliser /NoteMatieres/ et filtrer en PHP, ou créer une route /NoteMatieres/Note/{id}
-    
-    // Si votre API n'a pas de filtre spécifique, on peut tricher en réutilisant ListeNote pour l'instant
-    // Mais l'idéal est :
-    // $tableau_assoc = callAPI('GET', '/NoteMatieres/?noNote=' . $note); 
-    
-    // Comme votre main.py précédent avait GET /NoteMatieres/{noMat}/{noNote},
-    // il faudrait ajouter une route de recherche dans main.py pour filtrer par une seule colonne.
-    // Pour l'instant, je désactive le filtre API pour éviter le crash si la route n'existe pas :
-    echo "Filtre via API à implémenter dans main.py";
+    // Appel à la nouvelle route de l'API
+    $endpoint = "/NoteMatieres/Note/" . intval($note); 
+    $tableau_assoc = callAPI('GET', $endpoint);
+
+    if ($tableau_assoc !== false && !empty($tableau_assoc)) {
+        afficheTableau($tableau_assoc);
+        return true;
+    } elseif (empty($tableau_assoc)) {
+        echo "<p class='m-5'>Aucun résultat pour ce filtre.</p>";
+    }
     return false;
 }
 
 function FiltreParMatiere($matiere)
 {
-    echo "Filtre via API à implémenter dans main.py";
+    // Appel à la nouvelle route de l'API
+    $endpoint = "/NoteMatieres/Matiere/" . intval($matiere);
+    $tableau_assoc = callAPI('GET', $endpoint);
+
+    if ($tableau_assoc !== false && !empty($tableau_assoc)) {
+        afficheTableau($tableau_assoc);
+        return true;
+    } elseif (empty($tableau_assoc)) {
+        echo "<p class='m-5'>Aucun résultat pour ce filtre.</p>";
+    }
     return false;
 }
-?>
