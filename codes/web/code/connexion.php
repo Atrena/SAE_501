@@ -1,23 +1,18 @@
 <?php
+session_start();
 include_once("fonction.php");
 include_once("formulaire.php");
-session_start();
 
-$log = fopen('connexion.log', 'a+');
 
-if (isset($_POST) && !empty($_POST) && isset($_POST['connect']) && isset($_POST["login"]) && isset($_POST["pass"])) {
+if (isset($_POST['connect'])) {
     if (authentification($_POST["login"], $_POST["pass"])) {
-        $_SESSION["login"] = $_POST["login"];
-        fputs($log, $_POST['login'] . " | " . $_SERVER['REMOTE_ADDR'] . " | " . date('l jS \of F Y h:i:s A') . " | Connexion réussie en tant que " . $_SESSION['statut'] . "\n");
-        fclose($log);
+        // Le jeton est déjà mis en session par la fonction authentification()
         header('Location: index.php');
         exit();
     } else {
-        $error_message = "L'identifiant ou le mot de passe est incorrect.";
-        fputs($log, $_POST['login'] . " | " . $_SERVER['REMOTE_ADDR'] . " | " . date('l jS \of F Y h:i:s A') . " | Connexion ratée" . "\n");
+        $error_message = "Identifiant ou mot de passe incorrect (via API).";
     }
 }
-fclose($log);
 ?>
 
 <!DOCTYPE html>

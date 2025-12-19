@@ -14,11 +14,18 @@ define('API_BASE_URL', 'http://sae_api:8000');
 // Fonction améliorée pour voir les erreurs
 function callAPI($method, $endpoint, $data = false) {
     $url = API_BASE_URL . $endpoint;
+    
+    // On récupère le jeton stocké en session
+    $headers = "Content-type: application/json\r\n";
+    if (isset($_SESSION['token'])) {
+        $headers .= "Authorization: Bearer " . $_SESSION['token'] . "\r\n";
+    }
+
     $options = array(
         'http' => array(
-            'header'  => "Content-type: application/json\r\n",
+            'header'  => $headers,
             'method'  => $method,
-            'ignore_errors' => true // Important pour récupérer le message d'erreur 400/500
+            'ignore_errors' => true
         )
     );
     if ($data) {
@@ -74,19 +81,39 @@ function redirect($url, $tps)
 // On garde PDO ici car l'API ne gère pas encore les logins
 function authentification($mail, $pass)
 {
-    $retour = false;
-    global $pdo_db;
-    $madb = $pdo_db;
-    $mail = $madb->quote($mail);
-    $pass = $madb->quote($pass);
-    $requete = "SELECT EMAIL,PASS,STATUT FROM utilisateurs WHERE EMAIL = " . $mail . " AND PASS = " . $pass;
-    $resultat = $madb->query($requete);
-    $tableau_assoc = $resultat->fetchAll(PDO::FETCH_ASSOC);
-    if (sizeof($tableau_assoc) != 0) {
-        $retour = true;
-        $_SESSION['statut'] = $tableau_assoc[0]['STATUT'];
+    // On prépare les données au format attendu par OAuth2 (FastAPI)
+    $postData = http_build_query([
+        'username' => $mail,
+        'password' => $pass
+    ]);
+
+    $options = [
+        'http' => [
+            'header'  => "Content-type: application/x-www-form-urlencoded\r\n",
+            'method'  => 'POST',
+            'content' => $postData,
+            'ignore_errors' => true // Pour récupérer les messages d'erreur de l'API
+        ]
+    ];
+
+    $context  = stream_context_create($options);
+    $result = @file_get_contents(API_BASE_URL . '/token', false, $context);
+
+    if ($result === FALSE) {
+        return false;
     }
-    return $retour;
+
+    $data = json_decode($result, true);
+
+    // Si on a reçu un jeton, la connexion est réussie
+    if (isset($data['access_token'])) {
+        $_SESSION['token'] = $data['access_token'];
+        $_SESSION['login'] = $mail;
+        $_SESSION['statut'] = $data['statut']; // Crucial pour l'affichage du menu
+        return true;
+    }
+
+    return false;
 }
 
 //****************************Suppression (Via API)****************************
