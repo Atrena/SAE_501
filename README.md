@@ -79,3 +79,22 @@ docker compose up -d --build
 ```
 
 L'application web sera accessible à l'adresse suivante : http://localhost:8080
+
+## VISA 4
+
+--- 
+
+Telecharger ce fichier : https://github.com/Atrena/SAE_501/releases/tag/v4.0
+
+Docker et Docker Compose sont nécessaires pour faire fonctionner ce projet.
+
+Cette version apporte une couche de sécurité supplémentaire en remplaçant l'authentification simple par une **authentification basée sur des jetons JWT (JSON Web Token)**. L'API FastAPI gère désormais la génération des jetons et la protection des routes CRUD
+
+### Installation et déploiement :
+
+Pour utiliser ce projet, il suffit de se placer dans le dossier `codes` à la racine.
+
+Exécutez la commande suivante pour lancer l'orchestration des trois services (Web, API, MariaDB):
+
+```bash
+docker compose up -d --build
