@@ -2,6 +2,7 @@
 include_once("./fonction.php");
 include_once("formulaire.php");
 session_start();
+echo $_SESSION["token"];
 $loggedOut = false;
 ?>
 <!DOCTYPE html>
